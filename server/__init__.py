@@ -16,20 +16,6 @@ def create_app(
                 static_folder=static_folder,
                 instance_relative_config=True)
 
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
-
-    db_path = os.path.join(app.instance_path, "server.sqlite")
-    app.config.from_mapping(
-        SECRET_KEY='SECRET_KEY',
-        SQLALCHEMY_DATABASE_URI='sqlite:///' + db_path,
-        SQLALCHEMY_TRACK_MODIFICATIONS=False
-    )
-
-    db.init_app(app)
-
     # Apply API blueprints
     from server import api_debug, api_auth
     app.register_blueprint(api_auth.bp)
@@ -48,7 +34,26 @@ def create_app(
     def home():
         return redirect('/index.html', code=302)
 
-    with app.app_context():
-        db.create_all()
-
+    _init_temp_dir(app)
+    _init_database(app)
     return app
+
+
+def _init_temp_dir(app):
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+
+def _init_database(app):
+    db_path = os.path.join(app.instance_path, "server.sqlite")
+    app.config.from_mapping(
+        SECRET_KEY='SECRET_KEY',
+        SQLALCHEMY_DATABASE_URI='sqlite:///' + db_path,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
+    )
+
+    with app.app_context():
+        db.init_app(app)
+        db.create_all()
