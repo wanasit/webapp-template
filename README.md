@@ -47,7 +47,8 @@ To build the frontend, you will need:
 - npm (tested on v6.14.6) or yarn (tested on v1.22.0)
 
 ```bash
-npm install
+yarn install
+# or `npm install`
 ```
 
 To run the frontend in the development mode on http://localhost:3000, run:
